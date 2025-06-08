@@ -1,9 +1,29 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import IntroScreen from "@/components/IntroScreen";
+import MainContent from "@/components/MainContent";
+import GPUPricingCards from '@/components/GPUPricingCards';
+import Footer from '@/components/Footer';
+import RotatingGlobe from "@/components/RotatingGlobe";
+
 
 export default function Home() {
+  const [showIntro, setShowIntro] = useState(true);
+
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+  };
+
   return (
-    <div className="bg-green-400">
-      Hello ProPal
-    </div>
+    <>
+      {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
+      {!showIntro && <MainContent />}
+      <RotatingGlobe />
+      <GPUPricingCards />
+
+      {/* Footer */}
+      <Footer />
+    </>
   );
 }
