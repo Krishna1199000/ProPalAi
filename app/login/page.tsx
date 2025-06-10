@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import AuthLayout from '@/components/auth/auth-layout';
 import GoogleSignInButton from '@/components/auth/google-signin-button';
 import PasswordInput from '@/components/auth/password-input';
+import { CardContent } from '@/components/ui/card';
 
 interface FormData {
   email: string;
@@ -99,16 +100,90 @@ export default function LoginPage() {
       subtitle="Sign in to continue your productivity journey"
     >
       <div className="space-y-6">
-        <GoogleSignInButton />
-        
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-700" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-gray-900 text-gray-400">or</span>
-          </div>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent>
+            <div>
+              <Label htmlFor="email" className="text-gray-300 font-medium">
+                Email Address
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your.email@example.com"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className={`mt-1 h-12 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500 ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
+              />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-400">{errors.email}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="password" className="text-gray-300 font-medium">
+                Password
+              </Label>
+              <div className="mt-1">
+                <PasswordInput
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={(value) => handleInputChange('password', value)}
+                  error={errors.password}
+                  name="password"
+                />
+              </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-400">{errors.password}</p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-600 bg-gray-800 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
+                  Remember me
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <Link
+                  href="/forgot-password"
+                  className="font-medium text-orange-400 hover:text-orange-300 transition-colors"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+            </div>
+
+            <AnimatedButton
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-12 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+              ) : (
+                'Log In'
+              )}
+            </AnimatedButton>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-700" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-gray-900 text-gray-400">or</span>
+              </div>
+            </div>
+
+            <GoogleSignInButton buttonText="Sign in with Google" />
+          </CardContent>
+        </form>
 
         {successMessage && (
           <div className="p-3 text-sm text-green-400 bg-green-900/20 border border-green-800 rounded-md">
@@ -121,78 +196,6 @@ export default function LoginPage() {
             {errors.general}
           </div>
         )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="email" className="text-gray-300 font-medium">
-              Email Address
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="your.email@example.com"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              className={`mt-1 h-12 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500 ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-400">{errors.email}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="password" className="text-gray-300 font-medium">
-              Password
-            </Label>
-            <div className="mt-1">
-              <PasswordInput
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(value) => handleInputChange('password', value)}
-                error={errors.password}
-                name="password"
-              />
-            </div>
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-400">{errors.password}</p>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-600 bg-gray-800 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link
-                href="/forgot-password"
-                className="font-medium text-orange-400 hover:text-orange-300 transition-colors"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
-
-          <AnimatedButton
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-12 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-            ) : (
-              'Log In'
-            )}
-          </AnimatedButton>
-        </form>
 
         <div className="text-center text-sm text-gray-400">
           Don't have an account?{' '}
