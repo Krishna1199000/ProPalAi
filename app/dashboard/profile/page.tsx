@@ -1,18 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatedButton } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Save, User as UserIcon, Mail, Phone, Key, Shield, CheckCircle, Eye, EyeOff, Activity } from 'lucide-react';
+import { Loader2, Save, User as UserIcon, Mail, Phone, Key, Shield, CheckCircle, Eye, EyeOff, Activity, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import PasswordInput from '@/components/auth/password-input';
 import PasswordStrength from '@/components/auth/password-strength';
 import { validatePassword } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import Image from 'next/image';
 
 interface Account {
   provider: string;
@@ -24,6 +25,7 @@ interface UserData {
   email: string;
   phone?: string;
   accounts?: Account[];
+  profileImage?: string;
 }
 
 export default function ProfilePage() {
@@ -41,6 +43,8 @@ export default function ProfilePage() {
     password: '',
     confirmPassword: '',
   });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchUserData();
@@ -139,6 +143,42 @@ export default function ProfilePage() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload-profile-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      if (userData) {
+        setUserData({ ...userData, profileImage: data.imageUrl });
+      }
+      toast.success('Profile image updated successfully');
+      fetchUserData();
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to upload image');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -155,8 +195,18 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="mb-12">
         <div className="flex items-center space-x-4 mb-4">
-          <div className="w-16 h-16 orange-gradient rounded-2xl flex items-center justify-center glow-orange-sm">
-            <UserIcon className="h-8 w-8 text-white" />
+          <div className="w-16 h-16 orange-gradient rounded-2xl flex items-center justify-center glow-orange-sm overflow-hidden">
+            {userData?.profileImage ? (
+              <Image
+                src={userData.profileImage}
+                alt="Profile"
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <UserIcon className="h-8 w-8 text-white" />
+            )}
           </div>
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">Profile Settings</h1>
@@ -245,6 +295,63 @@ export default function ProfilePage() {
 
                 <Separator className="bg-white/10" />
 
+                {/* Profile Image Upload */}
+                <div className="space-y-3">
+                  <Label className="text-white flex items-center space-x-3 text-lg font-semibold">
+                    <Upload className="h-5 w-5 text-gray-400" />
+                    <span>Profile Image</span>
+                  </Label>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-white/10">
+                      {userData?.profileImage ? (
+                        <Image
+                          src={userData.profileImage}
+                          alt="Profile"
+                          width={96}
+                          height={96}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                          <UserIcon className="h-8 w-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleImageUpload}
+                        accept="image/*"
+                        className="hidden"
+                      />
+                      <AnimatedButton
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-4 py-2 rounded-xl"
+                      >
+                        {uploading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4 mr-2" />
+                            {userData?.profileImage ? 'Change Image' : 'Upload Image'}
+                          </>
+                        )}
+                      </AnimatedButton>
+                      <p className="text-sm text-gray-400 mt-2">
+                        Recommended: Square image, max 5MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator className="bg-white/10" />
+
                 {/* Password Section (Conditional Rendering) */}
                 {isGoogleOAuthUser ? (
                   <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-gray-400">
@@ -261,22 +368,34 @@ export default function ProfilePage() {
                       <span>New Password</span>
                     </Label>
                     
-                    <PasswordInput
-                      id="password"
-                      placeholder="Enter new password"
-                      value={formData.password}
-                      onChange={(value) => handleInputChange('password', value)}
-                      name="password"
-                    />
-                    <PasswordStrength password={formData.password} />
+                    <Popover open={showPasswordRequirements} onOpenChange={setShowPasswordRequirements}>
+                      <PopoverTrigger asChild>
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="Enter new password"
+                          value={formData.password}
+                          onChange={(e) => handleInputChange('password', e.target.value)}
+                          onFocus={() => setShowPasswordRequirements(true)}
+                          onBlur={() => setShowPasswordRequirements(false)}
+                          name="password"
+                          className="bg-white/5 border-white/10 text-white focus:border-orange-500 focus:ring-orange-500/20 h-14 text-lg rounded-xl"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full bg-gray-900 border-white/10 backdrop-blur-xl text-white">
+                        <PasswordStrength password={formData.password} />
+                      </PopoverContent>
+                    </Popover>
 
                     <Label htmlFor="confirmPassword" className="sr-only">Confirm New Password</Label>
-                    <PasswordInput
+                    <Input
                       id="confirmPassword"
+                      type="password"
                       placeholder="Confirm new password"
                       value={formData.confirmPassword}
-                      onChange={(value) => handleInputChange('confirmPassword', value)}
+                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                       name="confirmPassword"
+                      className="bg-white/5 border-white/10 text-white focus:border-orange-500 focus:ring-orange-500/20 h-14 text-lg rounded-xl"
                     />
                   </div>
                 )}

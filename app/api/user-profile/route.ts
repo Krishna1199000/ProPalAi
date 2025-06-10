@@ -22,6 +22,7 @@ export async function GET(req: Request) {
         name: true,
         email: true,
         phone: true,
+        profileImage: true,
         accounts: {
           select: {
             provider: true,

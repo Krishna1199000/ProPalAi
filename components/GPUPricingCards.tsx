@@ -38,7 +38,7 @@ const pricingPlans = [
 
 export default function GPUPricingCards() {
   return (
-    <section id="pricing" className="py-24 px-6 bg-gray-900/50">
+    <section id="pricing" className="py-24 px-6 bg-gray-950">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <motion.div
@@ -65,10 +65,10 @@ export default function GPUPricingCards() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: index * 0.2 }}
               viewport={{ once: true }}
-              className={`relative bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 border transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+              className={`relative bg-gray-900/40 backdrop-blur-lg rounded-2xl p-8 border transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
                 plan.featured 
                   ? 'border-orange-500 shadow-orange-500/20 shadow-lg' 
-                  : 'border-gray-700 hover:border-gray-600'
+                  : 'border-gray-800 hover:border-gray-700'
               }`}
             >
               {plan.featured && (

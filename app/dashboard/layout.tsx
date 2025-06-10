@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { User, Bot, Menu, X, Zap, LogOut } from 'lucide-react';
-import { signOut } from 'next-auth/react';
+import { User, Bot, Menu, X, Zap, LogOut, Loader2 } from 'lucide-react';
+import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 const sidebarItems = [
   {
@@ -31,8 +32,17 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-orange-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen gradient-bg">
@@ -63,8 +73,18 @@ export default function DashboardLayout({
         <div className="p-8">
           {/* Logo Section */}
           <div className="flex items-center space-x-4 mb-12">
-            <div className="w-12 h-12 orange-gradient rounded-xl flex items-center justify-center glow-orange-sm">
-              <span className="text-white font-bold text-xl">P</span>
+            <div className="w-12 h-12 orange-gradient rounded-xl flex items-center justify-center glow-orange-sm overflow-hidden">
+              {session?.user?.image || session?.user?.profileImage ? (
+                <Image
+                  src={session.user.image || session.user.profileImage!}
+                  alt="Profile"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-white font-bold text-xl">P</span>
+              )}
             </div>
             <div>
               <h1 className="text-white font-bold text-2xl">Pro Pal AI</h1>
