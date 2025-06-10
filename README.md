@@ -2,8 +2,6 @@
 
 **Empowering your AI applications with seamless authentication, robust user management, and intuitive UX.**
 
-![ProPal AI Demo - Login/Signup](https://via.placeholder.com/800x450.png?text=Login+and+Signup+Screenshots)
-*Placeholder: Replace with a compelling GIF or screenshots of login and signup pages.*
 
 ## 🚀 Live Demo
 
