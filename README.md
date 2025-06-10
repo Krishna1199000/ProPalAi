@@ -44,13 +44,6 @@ ProPal AI is built with a focus on delivering a high-performance, secure, and us
 *   **Toast Notifications**: [Sonner](https://sonner.emojicode.pizza/)
 *   **Password Hashing**: [bcryptjs](https://www.npmjs.com/package/bcryptjs)
 
-## 📸 Screenshots/GIFs
-
-*Include high-quality screenshots or a short GIF demonstrating key features like:*
-*   *Login and Signup pages*
-*   *Dashboard overview (showing avatar, theme, protected route)*
-*   *Settings page (showing profile image upload, theme toggle)*
-*   *Toast notifications in action*
 
 ## 🏁 Getting Started
 

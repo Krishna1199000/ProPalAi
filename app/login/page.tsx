@@ -99,15 +99,13 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        redirect: true,
+        callbackUrl: '/dashboard'
       });
 
       if (result?.error) {
         toast.error('Invalid email or password');
         setErrors({ general: 'Invalid email or password' });
-      } else if (result?.ok) {
-        toast.success('Successfully logged in!');
-        router.push('/dashboard');
       }
     } catch (error) {
       toast.error('Network error. Please try again.');

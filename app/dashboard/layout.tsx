@@ -10,7 +10,7 @@ export default async function DashboardLayout({
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect('/login'); // Redirect to login if not authenticated
+    redirect('/login?message=Please login to access the dashboard');
   }
 
   return (
