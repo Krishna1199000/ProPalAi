@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Menu, X } from 'lucide-react';
+import { useRouter } from "next/navigation";
 
 interface CompactNavbarProps {
   isVisible: boolean;
@@ -9,6 +10,7 @@ interface CompactNavbarProps {
 }
 
 export default function CompactNavbar({ isVisible, isMobileMenuOpen, toggleMobileMenu }: CompactNavbarProps) {
+  const router = useRouter();
   return (
     <motion.nav
       initial={{ y: -100, opacity: 0 }}
@@ -54,7 +56,9 @@ export default function CompactNavbar({ isVisible, isMobileMenuOpen, toggleMobil
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <button className="bg-white text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+            <button className="bg-white text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+              onClick={() => router.push('/signup')}
+              >
               Sign up for free
             </button>
           </div>
@@ -102,7 +106,9 @@ export default function CompactNavbar({ isVisible, isMobileMenuOpen, toggleMobil
                 <ChevronDown className="w-4 h-4" />
               </div>
               <div className="pt-4 border-t border-gray-800">
-                <button className="w-full bg-white text-black px-4 py-3 rounded-lg text-base font-medium hover:bg-gray-100 transition-colors">
+                <button className="w-full bg-white text-black px-4 py-3 rounded-lg text-base font-medium hover:bg-gray-100 transition-colors"
+                  onClick={() => router.push('/signup')}
+                  >
                   Sign up for free
                 </button>
               </div>
