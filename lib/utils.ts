@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { toast } from 'sonner';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -44,4 +45,10 @@ export function validatePassword(password: string): { isValid: boolean; message?
     message: messages.length > 0 ? messages[0] : undefined,
     score: score,
   };
-} 
+}
+
+export const handleUnauthorized = () => {
+  toast.error('Please sign in to access this page', {
+    description: 'You need to be logged in to view this content.',
+  });
+}; 

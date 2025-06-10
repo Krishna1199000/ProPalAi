@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
+import { getServerSession } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -20,7 +21,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password are required');
+          throw new Error('Invalid credentials');
         }
 
         const user = await prisma.user.findUnique({
@@ -30,47 +31,56 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.password) {
-          throw new Error('No user found with this email');
+          throw new Error('Invalid credentials');
         }
 
-        const isPasswordValid = await bcrypt.compare(
+        const isCorrectPassword = await bcrypt.compare(
           credentials.password,
           user.password
         );
 
-        if (!isPasswordValid) {
-          throw new Error('Invalid password');
+        if (!isCorrectPassword) {
+          throw new Error('Invalid credentials');
         }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-        };
+        return user;
       },
     }),
   ],
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
   },
   pages: {
-    signIn: '/signin',
+    signIn: '/login',
+    error: '/login',
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
+        session.user.email = token.email;
+        session.user.name = token.name;
       }
       return session;
     },
   },
+  secret: process.env.NEXTAUTH_SECRET,
+}
+
+export async function getSession() {
+  return await getServerSession(authOptions);
+}
+
+export async function getCurrentUser() {
+  const session = await getSession();
+  return session?.user;
 }

@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 import Link from 'next/link';
 import { AnimatedButton } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +31,7 @@ interface Errors {
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -38,6 +41,32 @@ export default function SignUpPage() {
   const [errors, setErrors] = useState<Errors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
+
+  // Show loading state while checking session
+  if (status === 'loading') {
+    return (
+      <AuthLayout
+        title="Loading..."
+        subtitle="Please wait while we check your session"
+      >
+        <div className="flex justify-center items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
+        </div>
+      </AuthLayout>
+    );
+  }
+
+  // Don't render the form if user is authenticated
+  if (status === 'authenticated') {
+    return null;
+  }
 
   const validateForm = (): boolean => {
     const newErrors: Errors = {};
@@ -95,13 +124,15 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        toast.error(data.error || 'Something went wrong');
         setErrors({ general: data.error || 'Something went wrong' });
         return;
       }
 
-      // Redirect to login page after successful signup
+      toast.success('Account created successfully! Please log in.');
       router.push('/login?message=Account created successfully. Please log in.');
     } catch (error) {
+      toast.error('Network error. Please try again.');
       setErrors({ general: 'Network error. Please try again.' });
     } finally {
       setIsLoading(false);

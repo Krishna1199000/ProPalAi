@@ -10,8 +10,8 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
   return (
     <div className="min-h-screen flex bg-gray-900">
       {/* Left Panel - Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gray-900">
-        <div className="max-w-md w-full space-y-8">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gray-900 py-12">
+        <div className="max-w-md w-full space-y-8 my-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-6">
               <div className="flex items-center space-x-2">
