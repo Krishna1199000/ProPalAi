@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import AuthLayout from '@/components/auth/auth-layout';
 import GoogleSignInButton from '@/components/auth/google-signin-button';
 import PasswordInput from '@/components/auth/password-input';
+import { validatePassword } from '@/lib/utils';
+import PasswordStrength from '@/components/auth/password-strength';
 
 interface FormData {
   name: string;
@@ -35,6 +37,7 @@ export default function SignUpPage() {
   });
   const [errors, setErrors] = useState<Errors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Errors = {};
@@ -51,8 +54,11 @@ export default function SignUpPage() {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+    } else {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.message;
+      }
     }
 
     if (!formData.confirmPassword) {
@@ -110,13 +116,24 @@ export default function SignUpPage() {
     }
   };
 
+  const handlePasswordFocus = () => {
+    setShowPasswordRequirements(true);
+  };
+
+  const handlePasswordBlur = () => {
+    // Hide requirements after a short delay to allow for interaction
+    setTimeout(() => {
+      setShowPasswordRequirements(false);
+    }, 200);
+  };
+
   return (
     <AuthLayout
       title="Get started with Pro Pal AI"
       subtitle="Create your account to unlock intelligent productivity"
     >
       <div className="space-y-6">
-        <GoogleSignInButton />
+        <GoogleSignInButton buttonText="Sign up with Google" />
         
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -133,7 +150,7 @@ export default function SignUpPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 relative z-1">
           <div>
             <Label htmlFor="name" className="text-gray-300 font-medium">
               Full Name
@@ -168,7 +185,7 @@ export default function SignUpPage() {
             )}
           </div>
 
-          <div>
+          <div className="relative z-20">
             <Label htmlFor="password" className="text-gray-300 font-medium">
               Password
             </Label>
@@ -177,12 +194,19 @@ export default function SignUpPage() {
                 placeholder="Create a strong password"
                 value={formData.password}
                 onChange={(value) => handleInputChange('password', value)}
+                onFocus={handlePasswordFocus}
+                onBlur={handlePasswordBlur}
                 error={errors.password}
                 name="password"
               />
             </div>
             {errors.password && (
               <p className="mt-1 text-sm text-red-400">{errors.password}</p>
+            )}
+            {showPasswordRequirements && (
+              <div className="absolute z-[999] mt-1 p-3 bg-gray-800 border border-gray-700 rounded-md shadow-lg max-w-sm">
+                <PasswordStrength password={formData.password} />
+              </div>
             )}
           </div>
 

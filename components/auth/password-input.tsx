@@ -11,14 +11,20 @@ interface PasswordInputProps {
   onChange: (value: string) => void;
   error?: string;
   name?: string;
+  id?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
-export default function PasswordInput({ 
+export default function PasswordInput({
   placeholder = "Password",
   value,
   onChange,
   error,
-  name
+  name,
+  id,
+  onFocus,
+  onBlur
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -29,8 +35,11 @@ export default function PasswordInput({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={onFocus}
+        onBlur={onBlur}
         className={`pr-12 h-12 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500 ${error ? 'border-red-500 focus:border-red-500' : ''}`}
         name={name}
+        id={id}
       />
       <AnimatedButton
         type="button"

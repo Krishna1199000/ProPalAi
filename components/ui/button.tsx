@@ -40,7 +40,7 @@ export function AnimatedButton({
       {...props}
     >
       <motion.span
-        className="relative z-10"
+        className="relative"
       >
         {children}
       </motion.span>
